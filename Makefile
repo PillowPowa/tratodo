@@ -2,4 +2,4 @@ run:
 	@go run ./cmd/tratodo --config=./configs/development.yaml
 
 migration:
-	@go run ./cmd/migrator --db-path=./storage/tratodo.db --migrations-path=./migrations
+	@go run ./cmd/migrator --data=./storage/tratodo.db --migrations=./migrations
