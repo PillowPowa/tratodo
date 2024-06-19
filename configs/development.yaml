@@ -1,0 +1,6 @@
+env: "development"
+storage_path: "./storage/tratodo.db"
+http:
+  port: 8090
+  write_timeout: 15
+  read_timeout: 15
