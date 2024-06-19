@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 	"tratodo/internal/config"
 	"tratodo/internal/storage"
 
@@ -32,5 +33,11 @@ func main() {
 
 	addr := fmt.Sprintf("%s:%v", app.Env.HTTP.Host, app.Env.HTTP.Port)
 	log.Printf("API ready recieve ur requests on addr: http://%s", addr)
-	_ = http.ListenAndServe(addr, router)
+	srv := http.Server{
+		Addr:         addr,
+		Handler:      router,
+		ReadTimeout:  time.Duration(app.Env.HTTP.ReadTimeout) * time.Second,
+		WriteTimeout: time.Duration(app.Env.HTTP.WriteTimeout) * time.Second,
+	}
+	log.Fatal(srv.ListenAndServe())
 }
