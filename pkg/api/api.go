@@ -2,12 +2,9 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
-
-type ErrorBody struct {
-	Error string `json:"error"`
-}
 
 type HandlerFunc func(w http.ResponseWriter, r *http.Request) error
 
@@ -20,7 +17,12 @@ func WriteJSON(w http.ResponseWriter, status int, v interface{}) error {
 func MakeHandlerFunc(fn HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := fn(w, r); err != nil {
-			WriteJSON(w, http.StatusInternalServerError, ErrorBody{Error: err.Error()})
+			resErr, ok := err.(Error)
+			if !ok {
+				resErr = NewApiError(http.StatusInternalServerError, "ISE Occured")
+			}
+			log.Println(err.Error())
+			WriteJSON(w, resErr.StatusCode, resErr)
 		}
 	}
 }
