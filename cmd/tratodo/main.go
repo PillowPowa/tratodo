@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"tratodo/internal/api/routes"
 	"tratodo/internal/config"
 	"tratodo/internal/storage"
 
@@ -29,6 +30,10 @@ func main() {
 	app.DB = db
 
 	router := mux.NewRouter()
+
+	todoGroup := router.PathPrefix("/todo").Subrouter()
+	routes.NewTodoRoute(db, todoGroup)
+
 	http.Handle("/", router)
 
 	addr := fmt.Sprintf("%s:%v", app.Env.HTTP.Host, app.Env.HTTP.Port)
