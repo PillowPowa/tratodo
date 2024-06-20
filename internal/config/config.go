@@ -11,6 +11,7 @@ type Config struct {
 	Env         string     `yaml:"env" env-default:"development"`
 	StoragePath string     `yaml:"storage_path" env-required:"true"`
 	HTTP        HTTPConfig `yaml:"http"`
+	JWT         JWTConfig  `yaml:"jwt"`
 }
 
 type HTTPConfig struct {
@@ -18,6 +19,11 @@ type HTTPConfig struct {
 	Port         int    `yaml:"port" env-default:"8080"`
 	ReadTimeout  int    `yaml:"read_timeout" env-default:"15"`
 	WriteTimeout int    `yaml:"write_timeout" env-default:"15"`
+}
+
+type JWTConfig struct {
+	Secret  string `yaml:"secret"`
+	ExpDays int    `yaml:"exp_days" env-default:"7"`
 }
 
 func MustLoad() *Config {
