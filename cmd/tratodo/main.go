@@ -34,6 +34,9 @@ func main() {
 	todoGroup := router.PathPrefix("/todo").Subrouter()
 	routes.NewTodoRoute(db, todoGroup)
 
+	authGroup := router.PathPrefix("/auth").Subrouter()
+	routes.NewAuthRoute(db, &app.Env.JWT, authGroup)
+
 	http.Handle("/", router)
 
 	addr := fmt.Sprintf("%s:%v", app.Env.HTTP.Host, app.Env.HTTP.Port)
