@@ -11,7 +11,7 @@ import (
 
 type TodoRepository interface {
 	GetById(id int) (*models.Todo, error)
-	Create(todo *models.Todo) (*models.Todo, error)
+	Create(todo *models.Todo) (int64, error)
 	Delete(id int) error
 }
 
@@ -38,12 +38,8 @@ func (s *TodoService) GetById(id int) (*models.Todo, error) {
 	return todo, nil
 }
 
-func (s *TodoService) Create(todo *models.Todo) (*models.Todo, error) {
-	t, err := s.repo.Create(todo)
-	if err != nil {
-		return nil, err
-	}
-	return t, nil
+func (s *TodoService) Create(todo *models.Todo) (int64, error) {
+	return s.repo.Create(todo)
 }
 
 func (s *TodoService) Delete(id int) error {
@@ -54,14 +50,5 @@ func (s *TodoService) Delete(id int) error {
 		return err
 	}
 
-	err := s.repo.Delete(id)
-	if err != nil {
-		if errors.Is(err, repository.ErrNotFound) {
-			return api.NewApiError(http.StatusNotFound, fmt.Sprintf("TODO with id %v not found", id))
-		}
-
-		return err
-	}
-
-	return nil
+	return s.repo.Delete(id)
 }

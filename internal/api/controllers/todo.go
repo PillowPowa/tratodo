@@ -13,7 +13,7 @@ import (
 
 type TodoService interface {
 	GetById(id int) (*models.Todo, error)
-	Create(todo *models.Todo) (*models.Todo, error)
+	Create(todo *models.Todo) (int64, error)
 	Delete(id int) error
 }
 
