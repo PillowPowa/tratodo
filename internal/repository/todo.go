@@ -41,13 +41,13 @@ func (r *TodoRepository) GetById(id int) (*models.Todo, error) {
 func (r *TodoRepository) Create(todo *models.Todo) (*models.Todo, error) {
 	const op = "repository.todo.Create"
 
-	stmt, err := r.db.Prepare(`INSERT INTO todos (title, completed) VALUES (?, ?, ?)`)
+	stmt, err := r.db.Prepare(`INSERT INTO todos (title, completed) VALUES (?, ?)`)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	t := new(models.Todo)
-	err = stmt.QueryRow(todo.Title, todo.Completed).Scan(&t.ID, &t.Title, &t.Completed)
+	err = stmt.QueryRow(todo.Title, todo.Completed).Scan(&t.ID, &t.Title)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -58,17 +58,13 @@ func (r *TodoRepository) Create(todo *models.Todo) (*models.Todo, error) {
 func (r *TodoRepository) Delete(id int) error {
 	const op = "repository.todo.Delete"
 
-	stmt, err := r.db.Prepare(`--sql DELETE FROM todos WHERE id = ?`)
+	stmt, err := r.db.Prepare(`DELETE FROM todos WHERE id = ?`)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
 	if _, err := stmt.Exec(id); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return ErrNotFound
-		}
-
-		return err
+		return fmt.Errorf("%s: %w", op, err)
 	}
 
 	return nil
