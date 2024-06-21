@@ -20,5 +20,8 @@ func NewAuthRoute(db *sql.DB, env *config.JWTConfig, router *mux.Router) {
 
 	router.HandleFunc("/login", api.MakeHandlerFunc(c.Login)).Methods("POST")
 	router.HandleFunc("/register", api.MakeHandlerFunc(c.Register)).Methods("POST")
-	router.HandleFunc("/logout", api.MakeHandlerFunc(middlewares.WithAuth(c.Logout))).Methods("POST")
+
+	protRouter := router.PathPrefix("/").Subrouter()
+	protRouter.Use(middlewares.AuthMiddleware)
+	protRouter.HandleFunc("/logout", api.MakeHandlerFunc(c.Logout)).Methods("POST")
 }

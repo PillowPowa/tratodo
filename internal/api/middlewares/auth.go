@@ -1,29 +1,38 @@
 package middlewares
 
 import (
-	"fmt"
 	"log"
 	"net/http"
+	"tratodo/internal/libs/context"
 	"tratodo/internal/libs/jwt"
 	"tratodo/pkg/api"
 )
 
-func WithAuth(fn api.HandlerFunc) api.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) error {
-		tokenStr := inferCookieJWT(r)
-		if tokenStr == "" {
-			return api.NewApiError(http.StatusUnauthorized, "Unauthorized")
+// AuthMiddleware is a middleware that checks authentication before calling the http.Handler
+func AuthMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		claims, ok := inferClaimsJWT(r)
+		if !ok {
+			api.WriteJSON(w, http.StatusUnauthorized, "Unauthorized")
+			return
 		}
+		next.ServeHTTP(w, r.WithContext(context.NewAuthContext(r.Context(), claims.ID)))
+	})
+}
 
-		claims, err := jwt.GetMapClaims(tokenStr)
-		if err != nil {
-			log.Println(err)
-			return api.NewApiError(http.StatusUnauthorized, "Unauthorized")
-		}
-
-		fmt.Println("[Auth Middleware] Found user ID:", claims.ID)
-		return fn(w, r)
+func inferClaimsJWT(r *http.Request) (*jwt.AuthClaims, bool) {
+	tokenStr := inferCookieJWT(r)
+	if tokenStr == "" {
+		return nil, false
 	}
+
+	claims, err := jwt.GetMapClaims(tokenStr)
+	if err != nil {
+		log.Println(err)
+		return nil, false
+	}
+
+	return claims, true
 }
 
 func inferCookieJWT(r *http.Request) string {
