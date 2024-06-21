@@ -10,7 +10,8 @@ import (
 func NewSqlite(storagePath string) (*sql.DB, error) {
 	const op = "storage.sqlite.New"
 
-	db, err := sql.Open("sqlite3", storagePath)
+	dataSource := fmt.Sprintf("file:%s?_foreign_keys=on", storagePath)
+	db, err := sql.Open("sqlite3", dataSource)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}

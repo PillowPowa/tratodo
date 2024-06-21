@@ -17,16 +17,16 @@ func NewTodoRepository(db *sql.DB) *TodoRepository {
 	}
 }
 
-func (r *TodoRepository) GetById(id int) (*models.Todo, error) {
+func (r *TodoRepository) GetById(id int64) (*models.Todo, error) {
 	const op = "repository.todo.GetById"
 
-	stmt, err := r.db.Prepare(`SELECT id, title, completed FROM todos WHERE id = ?`)
+	stmt, err := r.db.Prepare(`SELECT id, title, completed, user_id FROM todos WHERE id = ?`)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	t := models.Todo{}
-	err = stmt.QueryRow(id).Scan(&t.ID, &t.Title, &t.Completed)
+	err = stmt.QueryRow(id).Scan(&t.ID, &t.Title, &t.Completed, &t.UserId)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrNotFound
@@ -38,16 +38,20 @@ func (r *TodoRepository) GetById(id int) (*models.Todo, error) {
 	return &t, nil
 }
 
-func (r *TodoRepository) Create(todo *models.Todo) (int64, error) {
+func (r *TodoRepository) Create(todo *models.Todo, userId int64) (int64, error) {
 	const op = "repository.todo.Create"
 
-	stmt, err := r.db.Prepare(`INSERT INTO todos (title, completed) VALUES (?, ?)`)
+	stmt, err := r.db.Prepare(`INSERT INTO todos (title, completed, user_id) VALUES (?, ?, ?)`)
 	if err != nil {
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 
-	res, err := stmt.Exec(todo.Title, todo.Completed)
+	res, err := stmt.Exec(todo.Title, todo.Completed, userId)
 	if err != nil {
+		// TEMP: bad solution, but it works :D
+		if err.Error() == "FOREIGN KEY constraint failed" {
+			return 0, ErrRef
+		}
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -59,7 +63,7 @@ func (r *TodoRepository) Create(todo *models.Todo) (int64, error) {
 	return id, nil
 }
 
-func (r *TodoRepository) Delete(id int) error {
+func (r *TodoRepository) Delete(id int64) error {
 	const op = "repository.todo.Delete"
 
 	stmt, err := r.db.Prepare(`DELETE FROM todos WHERE id = ?`)
