@@ -9,10 +9,12 @@ import (
 	"tratodo/pkg/api"
 )
 
+var errOwnership = api.NewApiError(http.StatusForbidden, "You cannot view other users' todos")
+
 type TodoRepository interface {
-	GetById(id int) (*models.Todo, error)
-	Create(todo *models.Todo) (int64, error)
-	Delete(id int) error
+	GetById(id int64) (*models.Todo, error)
+	Create(todo *models.Todo, userId int64) (int64, error)
+	Delete(id int64) error
 }
 
 type TodoService struct {
@@ -25,29 +27,38 @@ func NewTodoService(repo TodoRepository) *TodoService {
 	}
 }
 
-func (s *TodoService) GetById(id int) (*models.Todo, error) {
+func (s *TodoService) GetById(id int64, userId int64) (*models.Todo, error) {
 	todo, err := s.repo.GetById(id)
-	if err != nil {
-		if errors.Is(err, repository.ErrNotFound) {
-			return nil, api.NewApiError(http.StatusNotFound, fmt.Sprintf("TODO with id %v not found", id))
-		}
-
-		return nil, err
+	if err != nil && errors.Is(err, repository.ErrNotFound) {
+		return nil, api.NewApiError(http.StatusNotFound, fmt.Sprintf("TODO with id %v not found", id))
 	}
 
-	return todo, nil
+	if todo.UserId != userId {
+		return nil, errOwnership
+	}
+
+	return todo, err
 }
 
-func (s *TodoService) Create(todo *models.Todo) (int64, error) {
-	return s.repo.Create(todo)
+func (s *TodoService) Create(todo *models.Todo, userId int64) (int64, error) {
+	id, err := s.repo.Create(todo, userId)
+	if err != nil && errors.Is(err, repository.ErrRef) {
+		return 0, api.NewApiError(http.StatusBadRequest, "Provided todo author doesn't exists")
+	}
+	return id, err
 }
 
-func (s *TodoService) Delete(id int) error {
-	if _, err := s.repo.GetById(id); err != nil {
+func (s *TodoService) Delete(id int64, userId int64) error {
+	todo, err := s.repo.GetById(id)
+	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
 			return api.NewApiError(http.StatusNotFound, fmt.Sprintf("TODO with id %v not found", id))
 		}
 		return err
+	}
+
+	if todo.UserId != userId {
+		return errOwnership
 	}
 
 	return s.repo.Delete(id)

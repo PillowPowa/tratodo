@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"tratodo/internal/domain/models"
+	"tratodo/internal/libs/context"
 	"tratodo/pkg/api"
 
 	"github.com/go-playground/validator/v10"
@@ -12,9 +13,9 @@ import (
 )
 
 type TodoService interface {
-	GetById(id int) (*models.Todo, error)
-	Create(todo *models.Todo) (int64, error)
-	Delete(id int) error
+	GetById(id int64, userId int64) (*models.Todo, error)
+	Create(todo *models.Todo, userId int64) (int64, error)
+	Delete(id int64, userId int64) error
 }
 
 type TodoController struct {
@@ -28,12 +29,17 @@ func NewTodoController(service TodoService) *TodoController {
 }
 
 func (c *TodoController) GetById(w http.ResponseWriter, r *http.Request) error {
-	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	id, err := strconv.ParseInt(mux.Vars(r)["id"], 10, 64)
 	if err != nil {
 		return api.NewApiError(http.StatusBadRequest, "TODO ID should be an integer")
 	}
 
-	todo, err := c.service.GetById(id)
+	userId, err := context.InferAuthContext(r.Context())
+	if err != nil {
+		return err
+	}
+
+	todo, err := c.service.GetById(id, userId)
 	if err != nil {
 		return err
 	}
@@ -43,6 +49,11 @@ func (c *TodoController) GetById(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (c *TodoController) Create(w http.ResponseWriter, r *http.Request) error {
+	userId, err := context.InferAuthContext(r.Context())
+	if err != nil {
+		return err
+	}
+
 	todo := new(models.Todo)
 	if err := json.NewDecoder(r.Body).Decode(todo); err != nil {
 		return api.NewApiError(http.StatusBadRequest, "Invalid JSON")
@@ -52,7 +63,7 @@ func (c *TodoController) Create(w http.ResponseWriter, r *http.Request) error {
 		return api.NewApiError(http.StatusBadRequest, err.Error())
 	}
 
-	t, err := c.service.Create(todo)
+	t, err := c.service.Create(todo, userId)
 	if err != nil {
 		return err
 	}
@@ -62,12 +73,17 @@ func (c *TodoController) Create(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (c *TodoController) Delete(w http.ResponseWriter, r *http.Request) error {
-	id, err := strconv.Atoi(mux.Vars(r)["id"])
+	id, err := strconv.ParseInt(mux.Vars(r)["id"], 10, 64)
 	if err != nil {
 		return api.NewApiError(http.StatusBadRequest, "TODO ID should be an integer")
 	}
 
-	err = c.service.Delete(id)
+	userId, err := context.InferAuthContext(r.Context())
+	if err != nil {
+		return err
+	}
+
+	err = c.service.Delete(id, userId)
 	if err != nil {
 		return err
 	}

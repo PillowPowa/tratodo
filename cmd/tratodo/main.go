@@ -32,10 +32,10 @@ func main() {
 	router := mux.NewRouter()
 
 	todoGroup := router.PathPrefix("/todo").Subrouter()
-	routes.NewTodoRoute(db, todoGroup)
+	routes.NewTodoRoute(app.DB, todoGroup)
 
 	authGroup := router.PathPrefix("/auth").Subrouter()
-	routes.NewAuthRoute(db, &app.Env.JWT, authGroup)
+	routes.NewAuthRoute(app.DB, &app.Env.JWT, authGroup)
 
 	http.Handle("/", router)
 
