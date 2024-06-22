@@ -118,6 +118,5 @@ func (c *TodoController) Delete(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	api.WriteJSON(w, http.StatusOK, true)
-	return nil
+	return api.WriteJSON(w, http.StatusOK, true)
 }

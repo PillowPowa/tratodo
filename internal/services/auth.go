@@ -13,17 +13,17 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type UserRepository interface {
+type AuthRepository interface {
 	GetUniqueUser(username string, email string) (*models.User, error)
 	Create(user *models.User) (int64, error)
 }
 
 type AuthService struct {
-	repo   UserRepository
+	repo   AuthRepository
 	jwtExp time.Duration
 }
 
-func NewAuthService(repo UserRepository, jwtExp time.Duration) *AuthService {
+func NewAuthService(repo AuthRepository, jwtExp time.Duration) *AuthService {
 	return &AuthService{
 		repo:   repo,
 		jwtExp: jwtExp,

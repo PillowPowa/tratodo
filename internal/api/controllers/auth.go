@@ -85,8 +85,7 @@ func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	c.writeJWTCookie(w, token)
-	api.WriteJSON(w, http.StatusOK, true)
-	return nil
+	return api.WriteJSON(w, http.StatusOK, true)
 }
 
 // @Summary Log out
@@ -98,19 +97,7 @@ func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) error {
 // @Router /auth/logout [delete]
 func (c *AuthController) Logout(w http.ResponseWriter, r *http.Request) error {
 	c.writeJWTCookie(w, "")
-	api.WriteJSON(w, http.StatusOK, true)
-	return nil
-}
-
-// @Summary Get user info
-// @Description Get user info
-// @Tags auth
-// @Security jwt
-// @Success 200 {object} models.PublicUser
-// @Failure 401,404,500 {object} api.Error
-// @Router /auth/me [get]
-func (c *AuthController) GetMe(w http.ResponseWriter, r *http.Request) error {
-	return api.NewApiError(http.StatusNotImplemented, "Not Implemented")
+	return api.WriteJSON(w, http.StatusOK, true)
 }
 
 func (c *AuthController) writeJWTCookie(w http.ResponseWriter, token string) {
