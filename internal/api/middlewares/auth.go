@@ -13,7 +13,8 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		claims, ok := inferClaimsJWT(r)
 		if !ok {
-			api.WriteJSON(w, http.StatusUnauthorized, "Unauthorized")
+			apiErr := api.NewApiError(http.StatusUnauthorized, "Unauthorized")
+			api.WriteJSON(w, apiErr.StatusCode, apiErr)
 			return
 		}
 		next.ServeHTTP(w, r.WithContext(context.NewAuthContext(r.Context(), claims.ID)))
