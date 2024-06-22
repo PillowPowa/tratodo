@@ -60,6 +60,9 @@ func main() {
 	authGroup := router.PathPrefix("/auth").Subrouter()
 	routes.NewAuthRoute(app.DB, &app.Env.JWT, authGroup)
 
+	userGroup := router.PathPrefix("/user").Subrouter()
+	routes.NewUserRoute(app.DB, userGroup)
+
 	http.Handle("/", router)
 
 	log.Printf("API ready recieve ur requests on addr: http://%s", addr)

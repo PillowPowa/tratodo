@@ -4,13 +4,7 @@ type User struct {
 	ID       int64  `json:"id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
-	PassHash []byte `json:"pass_hash"`
-}
-
-type PublicUser struct {
-	ID       int64  `json:"id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
+	PassHash []byte `json:"-"`
 }
 
 // Is it bad?

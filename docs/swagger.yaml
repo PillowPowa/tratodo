@@ -48,15 +48,6 @@ definitions:
     - password
     - username
     type: object
-  models.PublicUser:
-    properties:
-      email:
-        type: string
-      id:
-        type: integer
-      username:
-        type: string
-    type: object
   models.Todo:
     properties:
       completed:
@@ -67,6 +58,15 @@ definitions:
         type: string
       user_id:
         type: integer
+    type: object
+  models.User:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      username:
+        type: string
     type: object
 info:
   contact: {}
@@ -127,31 +127,6 @@ paths:
       security:
       - jwt: []
       summary: Log out
-      tags:
-      - auth
-  /auth/me:
-    get:
-      description: Get user info
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.PublicUser'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/api.Error'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/api.Error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/api.Error'
-      security:
-      - jwt: []
-      summary: Get user info
       tags:
       - auth
   /auth/register:
@@ -309,6 +284,28 @@ paths:
       summary: Get todo by ID
       tags:
       - todo
+  /user/:
+    get:
+      description: Get user using infered ID from JWT cookie
+      operationId: get-user-by-id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - jwt: []
+      summary: Get self user
 produces:
 - application/json
 schemes:

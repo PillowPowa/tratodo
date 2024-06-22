@@ -19,7 +19,7 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 	}
 }
 
-func (r *UserRepository) GetById(id int) (*models.User, error) {
+func (r *UserRepository) GetById(id int64) (*models.User, error) {
 	const op = "repository.user.GetById"
 
 	stmt, err := r.db.Prepare(`SELECT id, username, pass_hash, email FROM users WHERE id = ?`)
@@ -86,7 +86,7 @@ func (r *UserRepository) Create(user *models.User) (int64, error) {
 	return id, nil
 }
 
-func (r *UserRepository) Delete(id int) error {
+func (r *UserRepository) Delete(id int64) error {
 	const op = "repository.user.Delete"
 
 	stmt, err := r.db.Prepare(`DELETE FROM users WHERE id = ?`)
