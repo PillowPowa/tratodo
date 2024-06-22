@@ -188,6 +188,42 @@ paths:
       summary: Sign up
       tags:
       - auth
+  /todo/:
+    post:
+      consumes:
+      - application/json
+      description: Create todo
+      parameters:
+      - description: Todo title
+        in: body
+        name: todo
+        required: true
+        schema:
+          $ref: '#/definitions/models.POSTTodo'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: number
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - jwt: []
+      summary: Create todo
+      tags:
+      - todo
   /todo/{id}:
     delete:
       consumes:

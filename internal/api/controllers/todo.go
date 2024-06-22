@@ -67,6 +67,7 @@ func (c *TodoController) GetById(w http.ResponseWriter, r *http.Request) error {
 // @Param todo body models.POSTTodo true "Todo title"
 // @Success 201 {number} int64
 // @Failure 400,401,500 {object} api.Error
+// @Router /todo/ [post]
 func (c *TodoController) Create(w http.ResponseWriter, r *http.Request) error {
 	userId, err := context.InferAuthContext(r.Context())
 	if err != nil {
