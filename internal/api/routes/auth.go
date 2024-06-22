@@ -23,5 +23,5 @@ func NewAuthRoute(db *sql.DB, env *config.JWTConfig, router *mux.Router) {
 
 	protRouter := router.PathPrefix("/").Subrouter()
 	protRouter.Use(middlewares.AuthMiddleware)
-	protRouter.HandleFunc("/logout", api.MakeHandlerFunc(c.Logout)).Methods("POST")
+	protRouter.HandleFunc("/logout", api.MakeHandlerFunc(c.Logout)).Methods("DELETE")
 }
