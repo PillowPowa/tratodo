@@ -1,0 +1,280 @@
+basePath: /
+definitions:
+  api.Error:
+    properties:
+      message:
+        type: string
+      status_code:
+        type: integer
+      status_text:
+        type: string
+    type: object
+  controllers.signInInput:
+    properties:
+      login:
+        maxLength: 50
+        minLength: 3
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - login
+    - password
+    type: object
+  models.POSTTodo:
+    properties:
+      title:
+        maxLength: 32
+        minLength: 3
+        type: string
+    required:
+    - title
+    type: object
+  models.POSTUser:
+    properties:
+      email:
+        type: string
+      password:
+        maxLength: 32
+        minLength: 6
+        type: string
+      username:
+        maxLength: 32
+        minLength: 3
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  models.PublicUser:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      username:
+        type: string
+    type: object
+  models.Todo:
+    properties:
+      completed:
+        type: boolean
+      id:
+        type: integer
+      title:
+        type: string
+      user_id:
+        type: integer
+    type: object
+info:
+  contact: {}
+  description: This is a simple todo list API
+  title: Tratodo API
+  version: "0.1"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user
+      parameters:
+      - description: User login
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.signInInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: Sign in
+      tags:
+      - auth
+  /auth/logout:
+    delete:
+      description: Invalidate JWT token
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - jwt: []
+      summary: Log out
+      tags:
+      - auth
+  /auth/me:
+    get:
+      description: Get user info
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PublicUser'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - jwt: []
+      summary: Get user info
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.POSTUser'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/api.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: Sign up
+      tags:
+      - auth
+  /todo/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete todo
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - jwt: []
+      summary: Delete todo
+      tags:
+      - todo
+    get:
+      consumes:
+      - application/json
+      description: Get todo by ID
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Todo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - jwt: []
+      summary: Get todo by ID
+      tags:
+      - todo
+produces:
+- application/json
+schemes:
+- http
+swagger: "2.0"

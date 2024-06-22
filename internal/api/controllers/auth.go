@@ -25,6 +25,15 @@ func NewAuthController(service AuthService) *AuthController {
 	}
 }
 
+// @Summary Sign up
+// @Description Register a new user
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param user body models.POSTUser true "User data"
+// @Success 201 {boolean} boolean
+// @Failure 400,500,409 {object} api.Error
+// @Router /auth/register [post]
 func (c *AuthController) Register(w http.ResponseWriter, r *http.Request) error {
 	user := new(models.POSTUser)
 	if err := json.NewDecoder(r.Body).Decode(user); err != nil {
@@ -46,13 +55,31 @@ func (c *AuthController) Register(w http.ResponseWriter, r *http.Request) error 
 	return nil
 }
 
+type signInInput struct {
+	Login    string `json:"login" validate:"required,min=3,max=50"`
+	Password string `json:"password" validate:"required,min=6"`
+}
+
+// @Summary Sign in
+// @Description Authenticate user
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param login body signInInput true "User login"
+// @Success 200 {boolean} boolean
+// @Failure 400,404,500 {object} api.Error
+// @Router /auth/login [post]
 func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) error {
-	input := make(map[string]string)
+	input := new(signInInput)
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return api.NewApiError(http.StatusBadRequest, "Invalid JSON")
 	}
 
-	token, err := c.service.Login(input["login"], input["password"])
+	if err := validator.New().Struct(input); err != nil {
+		return api.NewApiError(http.StatusBadRequest, err.Error())
+	}
+
+	token, err := c.service.Login(input.Login, input.Password)
 	if err != nil {
 		return err
 	}
@@ -62,12 +89,26 @@ func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+// @Summary Log out
+// @Description Invalidate JWT token
+// @Tags auth
+// @Security jwt
+// @Success 200 {boolean} boolean
+// @Failure 401,500 {object} api.Error
+// @Router /auth/logout [delete]
 func (c *AuthController) Logout(w http.ResponseWriter, r *http.Request) error {
 	c.writeJWTCookie(w, "")
 	api.WriteJSON(w, http.StatusOK, true)
 	return nil
 }
 
+// @Summary Get user info
+// @Description Get user info
+// @Tags auth
+// @Security jwt
+// @Success 200 {object} models.PublicUser
+// @Failure 401,404,500 {object} api.Error
+// @Router /auth/me [get]
 func (c *AuthController) GetMe(w http.ResponseWriter, r *http.Request) error {
 	return api.NewApiError(http.StatusNotImplemented, "Not Implemented")
 }
