@@ -13,7 +13,7 @@ var errOwnership = api.NewApiError(http.StatusForbidden, "You cannot view other 
 
 type TodoRepository interface {
 	GetById(id int64) (*models.Todo, error)
-	Create(todo *models.Todo, userId int64) (int64, error)
+	Create(todo *models.POSTTodo, userId int64) (int64, error)
 	Delete(id int64) error
 }
 
@@ -40,7 +40,7 @@ func (s *TodoService) GetById(id int64, userId int64) (*models.Todo, error) {
 	return todo, err
 }
 
-func (s *TodoService) Create(todo *models.Todo, userId int64) (int64, error) {
+func (s *TodoService) Create(todo *models.POSTTodo, userId int64) (int64, error) {
 	id, err := s.repo.Create(todo, userId)
 	if err != nil && errors.Is(err, repository.ErrRef) {
 		return 0, api.NewApiError(http.StatusBadRequest, "Provided todo author doesn't exists")

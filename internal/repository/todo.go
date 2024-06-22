@@ -38,15 +38,15 @@ func (r *TodoRepository) GetById(id int64) (*models.Todo, error) {
 	return &t, nil
 }
 
-func (r *TodoRepository) Create(todo *models.Todo, userId int64) (int64, error) {
+func (r *TodoRepository) Create(todo *models.POSTTodo, userId int64) (int64, error) {
 	const op = "repository.todo.Create"
 
-	stmt, err := r.db.Prepare(`INSERT INTO todos (title, completed, user_id) VALUES (?, ?, ?)`)
+	stmt, err := r.db.Prepare(`INSERT INTO todos (title, user_id) VALUES (?, ?, ?)`)
 	if err != nil {
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 
-	res, err := stmt.Exec(todo.Title, todo.Completed, userId)
+	res, err := stmt.Exec(todo.Title, userId)
 	if err != nil {
 		// TEMP: bad solution, but it works :D
 		if err.Error() == "FOREIGN KEY constraint failed" {
