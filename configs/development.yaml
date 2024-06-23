@@ -4,6 +4,7 @@ http:
   port: 8090
   write_timeout: 15
   read_timeout: 15
+  allow_origin: "http://localhost:5100"
 jwt:
   secret: "secret"
   exp_days: 3

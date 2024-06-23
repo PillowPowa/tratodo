@@ -6,9 +6,11 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"tratodo/internal/api/middlewares"
 	"tratodo/internal/api/routes"
 	"tratodo/internal/config"
 	"tratodo/internal/storage"
+	"tratodo/pkg/api"
 
 	_ "tratodo/docs"
 
@@ -50,6 +52,7 @@ func main() {
 	swaggerUrl := fmt.Sprintf("http://%s/docs/doc.json", addr)
 	router := mux.NewRouter()
 
+	router.Use(middlewares.CORS(app.Env.HTTP.AllowOrigin))
 	router.PathPrefix("/docs/").Handler(
 		httpSwagger.Handler(httpSwagger.URL(swaggerUrl)),
 	)
@@ -63,12 +66,16 @@ func main() {
 	userGroup := router.PathPrefix("/user").Subrouter()
 	routes.NewUserRoute(app.DB, userGroup)
 
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		api.WriteJSON(w, http.StatusOK, map[string]string{"message": "Welcome to Tratodo API"})
+	})
+
 	http.Handle("/", router)
 
 	log.Printf("API ready recieve ur requests on addr: http://%s", addr)
 	srv := http.Server{
 		Addr:         addr,
-		Handler:      router,
+		Handler:      middlewares.CORS(app.Env.HTTP.AllowOrigin)(router),
 		ReadTimeout:  time.Duration(app.Env.HTTP.ReadTimeout) * time.Second,
 		WriteTimeout: time.Duration(app.Env.HTTP.WriteTimeout) * time.Second,
 	}

@@ -19,6 +19,7 @@ type HTTPConfig struct {
 	Port         int    `yaml:"port" env-default:"8080"`
 	ReadTimeout  int    `yaml:"read_timeout" env-default:"15"`
 	WriteTimeout int    `yaml:"write_timeout" env-default:"15"`
+	AllowOrigin  string `yaml:"allow_origin" env-default:"*"`
 }
 
 type JWTConfig struct {
