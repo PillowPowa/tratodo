@@ -6,3 +6,6 @@ migration:
 
 swag:
 	@swag init -g cmd/tratodo/main.go
+
+web:
+	@cd web && bun run dev
