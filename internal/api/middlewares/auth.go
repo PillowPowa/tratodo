@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"log"
 	"net/http"
 	"tratodo/internal/libs/context"
 	"tratodo/internal/libs/jwt"
@@ -10,15 +9,16 @@ import (
 
 // AuthMiddleware is a middleware that checks authentication before calling the http.Handler
 func AuthMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		claims, ok := inferClaimsJWT(r)
-		if !ok {
-			apiErr := api.NewApiError(http.StatusUnauthorized, "Unauthorized")
-			api.WriteJSON(w, apiErr.StatusCode, apiErr)
-			return
-		}
-		next.ServeHTTP(w, r.WithContext(context.NewAuthContext(r.Context(), claims.ID)))
-	})
+	return http.HandlerFunc(
+		api.MakeHandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+			claims, ok := inferClaimsJWT(r)
+			if !ok {
+				return api.NewApiError(http.StatusUnauthorized, "Unauthorized")
+			}
+			next.ServeHTTP(w, r.WithContext(context.NewAuthContext(r.Context(), claims.ID)))
+			return nil
+		}),
+	)
 }
 
 func inferClaimsJWT(r *http.Request) (*jwt.AuthClaims, bool) {
@@ -29,7 +29,6 @@ func inferClaimsJWT(r *http.Request) (*jwt.AuthClaims, bool) {
 
 	claims, err := jwt.GetMapClaims(tokenStr)
 	if err != nil {
-		log.Println(err)
 		return nil, false
 	}
 
