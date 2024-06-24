@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 	"tratodo/internal/domain/models"
@@ -13,6 +14,7 @@ import (
 )
 
 type TodoService interface {
+	GetAll(query *models.TodoQuery, userId int64) ([]models.Todo, error)
 	GetById(id int64, userId int64) (*models.Todo, error)
 	Create(todo *models.POSTTodo, userId int64) (int64, error)
 	Delete(id int64, userId int64) error
@@ -26,6 +28,36 @@ func NewTodoController(service TodoService) *TodoController {
 	return &TodoController{
 		service: service,
 	}
+}
+
+// @Summary Get all todos
+// @Description Get all todos
+// @Tags todo
+// @Security jwt
+// @Accept json
+// @Produce json
+// @Param sort_by query string false "Sort by" Enums(newest,oldest)
+// @Param filter query string false "Filter" Enums(completed,uncompleted)
+// @Success 200 {array} models.Todo
+// @Failure 400,401,403,404,500 {object} api.Error
+// @Router /todo/ [get]
+func (c *TodoController) GetAll(w http.ResponseWriter, r *http.Request) error {
+	query := new(models.TodoQuery)
+	query.Filter = r.URL.Query().Get("filter")
+	query.SortBy = r.URL.Query().Get("sort_by")
+
+	if err := validator.New().Struct(query); err != nil {
+		return api.NewApiError(http.StatusBadRequest, err.Error())
+	}
+
+	userId, authErr := context.InferAuthContext(r.Context())
+	todos, err := c.service.GetAll(query, userId)
+
+	if errors.Join(authErr, err) != nil {
+		return err
+	}
+
+	return api.WriteJSON(w, http.StatusOK, todos)
 }
 
 // @Summary Get todo by ID

@@ -12,6 +12,7 @@ import (
 var errOwnership = api.NewApiError(http.StatusForbidden, "You cannot view other users' todos")
 
 type TodoRepository interface {
+	GetAll(query *models.TodoQuery, userId int64) ([]models.Todo, error)
 	GetById(id int64) (*models.Todo, error)
 	Create(todo *models.POSTTodo, userId int64) (int64, error)
 	Delete(id int64) error
@@ -25,6 +26,10 @@ func NewTodoService(repo TodoRepository) *TodoService {
 	return &TodoService{
 		repo: repo,
 	}
+}
+
+func (s *TodoService) GetAll(query *models.TodoQuery, userId int64) ([]models.Todo, error) {
+	return s.repo.GetAll(query, userId)
 }
 
 func (s *TodoService) GetById(id int64, userId int64) (*models.Todo, error) {

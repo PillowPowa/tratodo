@@ -17,6 +17,57 @@ func NewTodoRepository(db *sql.DB) *TodoRepository {
 	}
 }
 
+func (r *TodoRepository) GetAll(query *models.TodoQuery, userId int64) ([]models.Todo, error) {
+	const op = "repository.todo.GetAll"
+
+	orderBy := fmt.Sprintf("ORDER BY %s", withSort(query.SortBy))
+	filter := withFilter(query)
+	stmt, err := r.db.Prepare(
+		fmt.Sprintf(`SELECT id, title, completed, user_id FROM todos WHERE user_id = ? %s %s`, filter, orderBy),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	rows, err := stmt.Query(userId)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	defer rows.Close()
+
+	todos := []models.Todo{}
+	for rows.Next() {
+		t := models.Todo{}
+		if err := rows.Scan(&t.ID, &t.Title, &t.Completed, &t.UserId); err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		todos = append(todos, t)
+	}
+
+	return todos, nil
+}
+
+func withFilter(query *models.TodoQuery) string {
+	switch query.Filter {
+	case "completed":
+		return "AND completed = 1"
+	case "uncompleted":
+		return "AND completed = 0"
+	default:
+		return ""
+	}
+}
+
+func withSort(sortBy string) string {
+	switch sortBy {
+	case "oldest":
+		return "created_at ASC"
+	default:
+		return "created_at DESC"
+	}
+}
+
 func (r *TodoRepository) GetById(id int64) (*models.Todo, error) {
 	const op = "repository.todo.GetById"
 

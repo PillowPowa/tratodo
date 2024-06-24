@@ -10,3 +10,8 @@ type Todo struct {
 type POSTTodo struct {
 	Title string `json:"title" validate:"required,min=3,max=32"`
 }
+
+type TodoQuery struct {
+	SortBy string `json:"sort_by" validate:"omitempty,oneof=newest oldest"`
+	Filter string `json:"filter" validate:"omitempty,oneof=completed uncompleted"`
+}

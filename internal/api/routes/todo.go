@@ -17,6 +17,7 @@ func NewTodoRoute(db *sql.DB, router *mux.Router) {
 	c := controllers.NewTodoController(s)
 
 	router.Use(middlewares.AuthMiddleware)
+	router.HandleFunc("/", api.MakeHandlerFunc(c.GetAll)).Methods("GET")
 	router.HandleFunc("/{id}", api.MakeHandlerFunc(c.GetById)).Methods("GET")
 	router.HandleFunc("/", api.MakeHandlerFunc(c.Create)).Methods("POST")
 	router.HandleFunc("/{id}", api.MakeHandlerFunc(c.Delete)).Methods("DELETE")
