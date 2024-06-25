@@ -7,3 +7,17 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .bg-primary-gradient {
+    @apply bg-gradient-to-r from-primary-light via-primary to-primary-dark;
+  }
+
+  .bg-destructive-gradient {
+    @apply bg-gradient-to-r from-destructive-light via-destructive to-destructive-dark;
+  }
+
+  .skeleton {
+    @apply bg-background/90 rounded-sm animate-pulse shadow-sm;
+  }
+}

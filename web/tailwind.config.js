@@ -7,7 +7,15 @@ export default {
         // svelte-like theme
         primary: {
           DEFAULT: "#ff3e00",
-          foreground: "#fff",
+          light: "#ff5e00",
+          dark: "#ff1e00",
+          foreground: "#f8f9fa",
+        },
+        destructive: {
+          DEFAULT: "#dc3545",
+          light: "#e03141",
+          dark: "#c82333",
+          foreground: "#f8f9fa",
         },
         background: "#f8f9fa",
         foreground: "#212529",
