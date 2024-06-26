@@ -1,11 +1,13 @@
 <script lang="ts">
+  import CheckIcon from "../icons/CheckIcon.svelte";
   import { getSelectContext } from "./store";
   import cn from "clsx";
 
   const select = getSelectContext();
 
-  function selection() {
+  function selectCurrent() {
     select.select({ label, value });
+    select.toggle();
   }
 
   interface $$Props {
@@ -18,13 +20,16 @@
 </script>
 
 <button
-  on:click={selection}
+  on:click={selectCurrent}
   class={cn(
-    "block w-full rounded-md h-7 text-sm bg-secondary/70 hover:bg-secondary transition-colors border",
-    "text-left px-2 py-1",
+    "flex items-center w-full rounded-sm leading-[100%] hover:bg-secondary/80 transition-colors",
+    "text-left px-3 py-2",
     $$restProps.class
   )}
   {...$$restProps}
 >
   {label}
+  {#if $select.selected?.value === value}
+    <CheckIcon class="size-4 ml-auto fill-primary" />
+  {/if}
 </button>

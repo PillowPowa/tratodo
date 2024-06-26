@@ -10,8 +10,8 @@
   export const onValueChange = (newValue: string | undefined) => {};
   const select = getSelectContext();
 
-  const unsubscribe = select.subscribe((selected) => {
-    onValueChange(selected.value);
+  const unsubscribe = select.subscribe(({ selected }) => {
+    onValueChange(selected?.value);
   });
 
   onDestroy(unsubscribe);
