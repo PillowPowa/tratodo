@@ -1,23 +1,26 @@
 <script lang="ts">
+  import type { HTMLInputAttributes } from "svelte/elements";
   import { genId } from "../lib";
+  import cn from "clsx";
+
+  interface $$Props extends HTMLInputAttributes {
+    checked?: boolean;
+    disabled?: boolean;
+  }
 
   const id = genId("checkbox");
   export let checked = false;
+  export let disabled = false;
 </script>
 
-<label for={id} class="flex items-center">
-  <input
-    on:click={() => (checked = !checked)}
-    {id}
-    type="checkbox"
-    class="hidden"
-  />
+<label for={id} class="flex items-center space-x-2">
   <span
     data-checked={checked}
-    class={`
-      p-1 size-7 border bg-secondary rounded-md data-[checked='true']:bg-primary-gradient hover:bg-gradient-to-br mr-2
-      cursor-pointer transition-all group
-    `}
+    class={cn(
+      "p-1 size-7 border bg-secondary rounded-md data-[checked='true']:bg-primary-gradient hover:bg-gradient-to-br",
+      "cursor-pointer transition-all group",
+      disabled && "cursor-not-allowed opacity-70"
+    )}
   >
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
       <rect width="256" height="256" fill="none" />
@@ -35,10 +38,13 @@
     </svg>
   </span>
   <slot />
+  <input
+    on:change={(e) => (checked = e.currentTarget.checked)}
+    {id}
+    {disabled}
+    value={checked}
+    type="checkbox"
+    class="hidden"
+    {...$$restProps}
+  />
 </label>
-
-<style>
-  .test {
-    padding: 2rem;
-  }
-</style>

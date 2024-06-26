@@ -14,6 +14,8 @@
       "bg-secondary/80 rounded-md hover:bg-secondary shadow-md transition-colors",
     destructive:
       "bg-secondary rounded-md hover:bg-destructive-gradient active:bg-gradient-to-br hover:text-destructive-foreground shadow-md transition-all",
+    ghost:
+      "bg-transparent hover:bg-secondary/20 rounded-md hover:underline transtion-all",
   };
 
   const buttonSizes = {
@@ -25,14 +27,20 @@
   export let variant: keyof typeof buttonVariants = "primary";
   export let size: keyof typeof buttonSizes = "base";
 
-  const className = cn(
-    $$props.class,
+  let className = "";
+
+  export { className as class };
+</script>
+
+<button
+  on:click
+  class={cn(
+    className,
     "disabled:opacity-80 disabled:cursor-now-allowed",
     buttonVariants[variant],
     buttonSizes[size]
-  );
-</script>
-
-<button class={className} {...$$restProps}>
+  )}
+  {...$$restProps}
+>
   <slot />
 </button>
