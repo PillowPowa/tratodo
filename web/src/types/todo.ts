@@ -7,3 +7,5 @@ export interface Todo {
 export interface CreateTodoInput {
   title: string;
 }
+
+export type PatchTodoInput = Partial<Omit<Todo, "id">>;
