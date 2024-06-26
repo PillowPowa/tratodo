@@ -21,4 +21,5 @@ func NewTodoRoute(db *sql.DB, router *mux.Router) {
 	router.HandleFunc("/{id}", api.MakeHandlerFunc(c.GetById)).Methods("GET")
 	router.HandleFunc("/", api.MakeHandlerFunc(c.Create)).Methods("POST")
 	router.HandleFunc("/{id}", api.MakeHandlerFunc(c.Delete)).Methods("DELETE")
+	router.HandleFunc("/{id}", api.MakeHandlerFunc(c.UpdateOne)).Methods("PATCH")
 }

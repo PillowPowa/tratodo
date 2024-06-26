@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 	"tratodo/internal/domain/models"
 )
 
@@ -17,7 +18,7 @@ func NewTodoRepository(db *sql.DB) *TodoRepository {
 	}
 }
 
-func (r *TodoRepository) GetAll(query *models.TodoQuery, userId int64) ([]models.Todo, error) {
+func (r *TodoRepository) GetAll(query *models.TodoQuery, userId int64) ([]*models.Todo, error) {
 	const op = "repository.todo.GetAll"
 
 	orderBy := fmt.Sprintf("ORDER BY %s", withSort(query.SortBy))
@@ -35,9 +36,9 @@ func (r *TodoRepository) GetAll(query *models.TodoQuery, userId int64) ([]models
 	}
 	defer rows.Close()
 
-	todos := []models.Todo{}
+	todos := []*models.Todo{}
 	for rows.Next() {
-		t := models.Todo{}
+		t := new(models.Todo)
 		if err := rows.Scan(&t.ID, &t.Title, &t.Completed, &t.UserId); err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
@@ -89,29 +90,25 @@ func (r *TodoRepository) GetById(id int64) (*models.Todo, error) {
 	return &t, nil
 }
 
-func (r *TodoRepository) Create(todo *models.POSTTodo, userId int64) (int64, error) {
+func (r *TodoRepository) Create(todo *models.POSTTodo, userId int64) (*models.Todo, error) {
 	const op = "repository.todo.Create"
 
-	stmt, err := r.db.Prepare(`INSERT INTO todos (title, user_id) VALUES (?, ?)`)
+	stmt, err := r.db.Prepare(`INSERT INTO todos (title, user_id) VALUES (?, ?) RETURNING id, title, completed, user_id`)
 	if err != nil {
-		return 0, fmt.Errorf("%s: %w", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	res, err := stmt.Exec(todo.Title, userId)
+	t := new(models.Todo)
+	err = stmt.QueryRow(todo.Title, userId).Scan(&t.ID, &t.Title, &t.Completed, &t.UserId)
 	if err != nil {
 		// TEMP: bad solution, but it works :D
 		if err.Error() == "FOREIGN KEY constraint failed" {
-			return 0, ErrRef
+			return nil, ErrRef
 		}
-		return 0, fmt.Errorf("%s: %w", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	id, err := res.LastInsertId()
-	if err != nil {
-		return 0, fmt.Errorf("%s: %w", op, err)
-	}
-
-	return id, nil
+	return t, nil
 }
 
 func (r *TodoRepository) Delete(id int64) error {
@@ -127,4 +124,40 @@ func (r *TodoRepository) Delete(id int64) error {
 	}
 
 	return nil
+}
+
+// Definitely better to make the client send a put request and update the resource completely, but let's keep it that way for now
+// On my opinion this way is weird and bad, anyways in this case we can recieve NOT NULL constaint, SAFETY? ;)
+func (r *TodoRepository) UpdateOne(id int64, todo *models.PatchTodo) (*models.Todo, error) {
+	const op = "repository.todo.UpdateOne"
+
+	query := `UPDATE todos SET `
+	qParts := make([]string, 0, 2)
+	args := make([]any, 0, 2)
+
+	if todo.Completed != nil {
+		qParts = append(qParts, `completed = ?`)
+		args = append(args, *todo.Completed)
+	}
+
+	if todo.Title != nil {
+		qParts = append(qParts, `title = ?`)
+		args = append(args, *todo.Title)
+	}
+
+	query += strings.Join(qParts, ",") + ` WHERE id = ? RETURNING id, title, completed, user_id`
+	args = append(args, id)
+
+	stmt, err := r.db.Prepare(query)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	t := new(models.Todo)
+	err = stmt.QueryRow(args...).Scan(&t.ID, &t.Title, &t.Completed, &t.UserId)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return t, nil
 }

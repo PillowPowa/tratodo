@@ -48,6 +48,15 @@ definitions:
     - password
     - username
     type: object
+  models.PatchTodo:
+    properties:
+      completed:
+        type: boolean
+      title:
+        maxLength: 32
+        minLength: 3
+        type: string
+    type: object
   models.Todo:
     properties:
       completed:
@@ -56,8 +65,6 @@ definitions:
         type: integer
       title:
         type: string
-      user_id:
-        type: integer
     type: object
   models.User:
     properties:
@@ -234,7 +241,7 @@ paths:
         "201":
           description: Created
           schema:
-            type: number
+            $ref: '#/definitions/models.Todo'
         "400":
           description: Bad Request
           schema:
@@ -335,6 +342,54 @@ paths:
       security:
       - jwt: []
       summary: Get todo by ID
+      tags:
+      - todo
+    patch:
+      consumes:
+      - application/json
+      description: Update todo
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Todo title
+        in: body
+        name: todo
+        required: true
+        schema:
+          $ref: '#/definitions/models.PatchTodo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Todo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/api.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - jwt: []
+      summary: Update todo
       tags:
       - todo
   /user/:

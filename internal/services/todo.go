@@ -12,9 +12,10 @@ import (
 var errOwnership = api.NewApiError(http.StatusForbidden, "You cannot view other users' todos")
 
 type TodoRepository interface {
-	GetAll(query *models.TodoQuery, userId int64) ([]models.Todo, error)
+	GetAll(query *models.TodoQuery, userId int64) ([]*models.Todo, error)
 	GetById(id int64) (*models.Todo, error)
-	Create(todo *models.POSTTodo, userId int64) (int64, error)
+	Create(todo *models.POSTTodo, userId int64) (*models.Todo, error)
+	UpdateOne(id int64, todo *models.PatchTodo) (*models.Todo, error)
 	Delete(id int64) error
 }
 
@@ -28,7 +29,7 @@ func NewTodoService(repo TodoRepository) *TodoService {
 	}
 }
 
-func (s *TodoService) GetAll(query *models.TodoQuery, userId int64) ([]models.Todo, error) {
+func (s *TodoService) GetAll(query *models.TodoQuery, userId int64) ([]*models.Todo, error) {
 	return s.repo.GetAll(query, userId)
 }
 
@@ -45,12 +46,12 @@ func (s *TodoService) GetById(id int64, userId int64) (*models.Todo, error) {
 	return todo, err
 }
 
-func (s *TodoService) Create(todo *models.POSTTodo, userId int64) (int64, error) {
-	id, err := s.repo.Create(todo, userId)
+func (s *TodoService) Create(todo *models.POSTTodo, userId int64) (*models.Todo, error) {
+	t, err := s.repo.Create(todo, userId)
 	if err != nil && errors.Is(err, repository.ErrRef) {
-		return 0, api.NewApiError(http.StatusBadRequest, "Provided todo author doesn't exists")
+		return nil, api.NewApiError(http.StatusBadRequest, "Provided todo author doesn't exists")
 	}
-	return id, err
+	return t, err
 }
 
 func (s *TodoService) Delete(id int64, userId int64) error {
@@ -67,4 +68,13 @@ func (s *TodoService) Delete(id int64, userId int64) error {
 	}
 
 	return s.repo.Delete(id)
+}
+
+func (s *TodoService) UpdateOne(id int64, todo *models.PatchTodo, userId int64) (*models.Todo, error) {
+	_, err := s.GetById(id, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.repo.UpdateOne(id, todo)
 }
