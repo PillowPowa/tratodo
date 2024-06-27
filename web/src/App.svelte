@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { user } from "./api";
+  import { todo, user } from "./api";
   import TodoCard from "./components/todo/TodoCard.svelte";
   import UserCard from "./components/user/UserCard.svelte";
   import Select from "./components/select/Select.svelte";
@@ -20,33 +20,23 @@
       });
   });
 
-  const todosMock = [
-    {
-      id: 1,
-      title: "Learn SvelteKit",
-      completed: false,
-    },
-    {
-      id: 2,
-      title: "Learn GraphQL",
-      completed: false,
-    },
-    {
-      id: 3,
-      title: "Learn TypeScript",
-      completed: true,
-    },
-    {
-      id: 4,
-      title: "Learn TailwindCSS",
-      completed: true,
-    },
-    {
-      id: 5,
-      title: "Learn Jest",
-      completed: false,
-    },
-  ];
+  let todosPromise = todo.getTodos();
+
+  const onAddTodo = (e: SubmitEvent) => {
+    e.preventDefault();
+    const target = e.target;
+    if (!(target instanceof HTMLFormElement)) return;
+    const formData = new FormData(target);
+    const title = formData.get("title") as string;
+
+    todo
+      .createTodo({ title })
+      .then(() => {
+        todosPromise = todo.getTodos();
+        target.reset();
+      })
+      .catch((e) => alert(JSON.stringify(e, null, 2)));
+  };
 </script>
 
 <main class="min-h-screen grid place-items-center">
@@ -71,10 +61,14 @@
     <div
       class="px-2 py-4 sm:p-6 space-y-4 bg-secondary rounded-lg max-h-[550px] overflow-auto"
     >
-      <EditableTodoCard />
-      {#each todosMock as todo (todo.id)}
-        <TodoCard {todo} />
-      {/each}
+      <EditableTodoCard on:submit={onAddTodo} />
+      {#await todosPromise}
+        <p>Loading...</p>
+      {:then todos}
+        {#each todos as todo (todo.id)}
+          <TodoCard {todo} />
+        {/each}
+      {/await}
     </div>
   </div>
 </main>

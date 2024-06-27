@@ -1,7 +1,12 @@
 <script lang="ts">
+  import type { HTMLFormAttributes } from "svelte/elements";
   import type { Todo } from "../../types/todo";
   import Button from "../Button.svelte";
   import Checkbox from "../Checkbox.svelte";
+
+  interface $$Props extends HTMLFormAttributes {
+    todo?: Partial<Todo>;
+  }
 
   function onInput(
     this: HTMLTextAreaElement,
@@ -18,10 +23,13 @@
 <form
   data-completed={todo.completed}
   class="px-2 py-4 bg-white/70 backdrop-blur-sm rounded-md data-[completed='true']:opacity-60 transition-colors"
+  on:submit
+  {...$$restProps}
 >
   <div class="flex items-center gap-x-2">
     <Checkbox bind:checked={todo.completed}>
       <textarea
+        name="title"
         placeholder="Todo title"
         rows="1"
         value={todo.title ?? ""}
