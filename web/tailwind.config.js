@@ -30,6 +30,15 @@ export default {
         xl: "0.75rem",
         "2xl": "1rem",
       },
+      keyframes: {
+        "fade-in": {
+          from: { opacity: 0 },
+          to: { opacity: 100 },
+        },
+      },
+      animation: {
+        "fade-in": "fade-in 300ms ease-in-out forwards",
+      },
     },
   },
   plugins: [],
