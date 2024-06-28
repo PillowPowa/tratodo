@@ -3,17 +3,24 @@
 
   interface $$Props extends svelteHTML.HTMLAttributes<HTMLDivElement> {}
 
-  import { onDestroy } from "svelte";
+  import { createEventDispatcher, onDestroy } from "svelte";
   import { getSelectContext, setSelectContext } from "./store";
+  import { derived } from "svelte/store";
+
   setSelectContext();
 
-  export const onValueChange = (newValue: string | undefined) => {};
+  const dispatch = createEventDispatcher<{
+    select: string | undefined;
+  }>();
+
   const select = getSelectContext();
 
-  const unsubscribe = select.subscribe(({ selected }) => {
-    onValueChange(selected?.value);
+  const unsubscribe = derived(
+    select,
+    ($select) => $select.selected?.value
+  ).subscribe((value) => {
+    dispatch("select", value);
   });
-
   onDestroy(unsubscribe);
 </script>
 

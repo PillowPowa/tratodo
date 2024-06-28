@@ -19,7 +19,7 @@
     data-open={$select.isOpen}
     on:click={select.toggle}
     class={cn(
-      "w-full rounded-md bg-background border h-10 px-4 py-2 shadow-sm text-left gap-x-2 inline-flex items-center group",
+      "w-full rounded-md bg-background border h-10 px-4 py-2 shadow-sm text-left gap-x-2 inline-flex items-center group capitalize",
       !$select.selected && "text-foreground/80",
       $$restProps.class
     )}
