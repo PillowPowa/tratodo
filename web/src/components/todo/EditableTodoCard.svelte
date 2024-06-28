@@ -6,6 +6,7 @@
 
   interface $$Props extends HTMLFormAttributes {
     todo?: Partial<Todo>;
+    "on:change"?: (checked: boolean) => void;
   }
 
   function onInput(
@@ -23,7 +24,7 @@
 <form
   data-completed={todo.completed}
   class="px-2 py-4 bg-white/70 backdrop-blur-sm rounded-md data-[completed='true']:opacity-60 transition-colors"
-  on:submit
+  on:submit|preventDefault
   {...$$restProps}
 >
   <div class="flex items-center gap-x-2">

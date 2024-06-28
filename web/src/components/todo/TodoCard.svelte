@@ -11,25 +11,36 @@
   import cn from "clsx";
 
   import type { Todo } from "src/types/todo";
-  import { todo as todoActions } from "../../api";
+  import { todoStore } from "../../store/todo";
 
+  export let todo: Todo;
   const todoMemento = memento<Todo>();
   let overlayStore = createOverlayContext();
   let editable = false;
   let titleRef: HTMLParagraphElement;
 
-  export let todo: Todo;
-
-  const onSubmit = async () => {
-    if (!editable || todoMemento.isSame(todo)) return;
-
-    todoActions
-      .patchTodo(todo.id, { title: todo.title })
-      .then(escapeEditMode)
-      .catch((e) => alert(JSON.stringify(e, null, 2)));
+  const onDelete = () => {
+    todoStore.deleteTodo(todo.id).catch(() => null);
   };
 
-  const onCancel = () => {
+  const toggleTodo = (forceCompleted: boolean = todo.completed) => {
+    todoStore
+      .updateTodo(todo.id, { completed: forceCompleted })
+      .catch(() => null);
+  };
+
+  const onEditionSubmit = async () => {
+    if (!editable || todoMemento.isSame(todo)) {
+      return onEditionCancel();
+    }
+
+    todoStore
+      .updateTodo(todo.id, todo)
+      .then(escapeEditMode)
+      .catch(onEditionCancel);
+  };
+
+  const onEditionCancel = () => {
     if (!editable) return;
     const restored = todoMemento.pop();
     if (!restored) return;
@@ -51,13 +62,14 @@
     overlayStore.toggle();
   };
 
+  // TEMP: hard code, better to use independent component with form
   const keyDownEventHandler = (e: KeyboardEvent) => {
     switch (e.key) {
       case "Enter":
-        onSubmit();
+        onEditionSubmit();
         break;
       case "Escape":
-        onCancel();
+        onEditionCancel();
         break;
     }
   };
@@ -67,7 +79,7 @@
 
 <Overlay>
   <div
-    use:clickOutside={onCancel}
+    use:clickOutside={onEditionCancel}
     data-completed={todo.completed && !$overlayStore}
     class={cn(
       "relative px-2 py-4 bg-white/70 backdrop-blur-sm rounded-md data-[completed='true']:opacity-60 transition-all",
@@ -75,7 +87,11 @@
     )}
   >
     <div class="flex items-center gap-x-2">
-      <Checkbox checked={todo.completed} disabled={editable} />
+      <Checkbox
+        on:change={(e) => toggleTodo(e.detail)}
+        checked={todo.completed}
+        disabled={editable}
+      />
       <div class="text-foreground/80 font-medium">
         <p
           bind:this={titleRef}
@@ -98,7 +114,7 @@
       </div>
 
       {#if !editable}
-        <div class="ml-auto flex items-center gap-x-2">
+        <div class="ml-auto flex items-center gap-x-2 animate-fade-in">
           <Button
             on:click={enterEditMode}
             aria-label="Edit todo"
@@ -110,6 +126,7 @@
           </Button>
 
           <Button
+            on:click={onDelete}
             aria-label="Delete todo"
             variant="destructive"
             size="icon"
@@ -122,7 +139,7 @@
 
       {#if editable}
         <button
-          on:click={onSubmit}
+          on:click={onEditionSubmit}
           class="absolute rounded-b-md bg-white h-8 px-6 py-1 text-sm right-0 bottom-0 translate-y-[calc(100%-1px)]"
         >
           Save

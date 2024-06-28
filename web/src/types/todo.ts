@@ -9,3 +9,8 @@ export interface CreateTodoInput {
 }
 
 export type PatchTodoInput = Partial<Omit<Todo, "id">>;
+
+export interface TodoQuery {
+  sort_by?: "newest" | "oldest";
+  filter?: "completed" | "uncompleted";
+}

@@ -2,11 +2,18 @@
   import type { HTMLInputAttributes } from "svelte/elements";
   import { genId } from "../lib";
   import cn from "clsx";
+  import { createEventDispatcher } from "svelte";
 
   interface $$Props extends HTMLInputAttributes {
     checked?: boolean;
     disabled?: boolean;
   }
+
+  const dispatch = createEventDispatcher();
+  const onCheckedChange = (e: { currentTarget: HTMLInputElement }) => {
+    checked = e.currentTarget.checked;
+    dispatch("change", checked);
+  };
 
   const id = genId("checkbox");
   export let checked = false;
@@ -39,7 +46,7 @@
   </span>
   <slot />
   <input
-    on:change={(e) => (checked = e.currentTarget.checked)}
+    on:change={onCheckedChange}
     {id}
     {disabled}
     value={checked}
