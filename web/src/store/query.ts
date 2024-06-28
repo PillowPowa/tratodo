@@ -4,15 +4,12 @@ function createQueryStore() {
   const queryParams = writable(new URLSearchParams(location.search));
 
   queryParams.subscribe((params) => {
-    history.replaceState(null, "", `?${params.toString()}`);
-  });
-
-  window.addEventListener("popstate", () => {
-    queryParams.set(new URLSearchParams(location.search));
+    let stringifyParams = params.toString();
+    if (stringifyParams.length > 1) stringifyParams = "?" + stringifyParams;
+    history.replaceState(null, "", "/" + stringifyParams);
   });
 
   return {
-    ...queryParams,
     subscribe: queryParams.subscribe,
     set: (params: URLSearchParams) => {
       queryParams.set(params);
