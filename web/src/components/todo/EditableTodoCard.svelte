@@ -13,7 +13,6 @@
     this: HTMLTextAreaElement,
     e: { currentTarget: EventTarget & HTMLTextAreaElement }
   ) {
-    todo = { ...todo, title: e.currentTarget.value };
     this.style.height = "auto";
     this.style.height = `${this.scrollHeight}px`;
   }
@@ -33,9 +32,9 @@
         name="title"
         placeholder="Todo title"
         rows="1"
-        value={todo.title ?? ""}
+        bind:value={todo.title}
         on:input={onInput}
-        class="text-balance max-w-full bg-transparent resize-none text-foreground/80 font-medium"
+        class="text-balance focus:outline-none max-w-full bg-transparent resize-none text-foreground/80 font-medium"
         wrap="hard"
         required
         maxlength="255"
