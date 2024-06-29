@@ -2,10 +2,10 @@
   import type { HTMLButtonAttributes } from "svelte/elements";
   import cn from "clsx";
 
-  interface $$Props extends HTMLButtonAttributes {
+  type $$Props = HTMLButtonAttributes & {
     variant?: keyof typeof buttonVariants;
     size?: keyof typeof buttonSizes;
-  }
+  };
 
   const buttonVariants = {
     primary:
@@ -27,8 +27,7 @@
   export let variant: keyof typeof buttonVariants = "primary";
   export let size: keyof typeof buttonSizes = "base";
 
-  let className = "";
-
+  let className: $$Props["class"] = undefined;
   export { className as class };
 </script>
 

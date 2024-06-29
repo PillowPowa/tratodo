@@ -4,10 +4,10 @@
   import { createEventDispatcher } from "svelte";
   import cn from "clsx";
 
-  interface $$Props extends HTMLInputAttributes {
+  type $$Props = HTMLInputAttributes & {
     checked?: boolean;
     disabled?: boolean;
-  }
+  };
 
   const dispatch = createEventDispatcher();
   const onCheckedChange = (e: { currentTarget: HTMLInputElement }) => {

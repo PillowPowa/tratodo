@@ -4,15 +4,12 @@
   import Button from "../ui/Button.svelte";
   import Checkbox from "../ui/Checkbox.svelte";
 
-  interface $$Props extends HTMLFormAttributes {
+  type $$Props = HTMLFormAttributes & {
     todo?: Partial<Todo>;
     "on:change"?: (checked: boolean) => void;
-  }
+  };
 
-  function onInput(
-    this: HTMLTextAreaElement,
-    e: { currentTarget: EventTarget & HTMLTextAreaElement }
-  ) {
+  function onInput(this: HTMLTextAreaElement) {
     this.style.height = "auto";
     this.style.height = `${this.scrollHeight}px`;
   }

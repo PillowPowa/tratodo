@@ -1,5 +1,5 @@
 <script lang="ts">
-  interface $$Props extends svelteHTML.HTMLAttributes<SVGElement> {}
+  type $$Props = svelteHTML.HTMLAttributes<SVGElementTagNameMap["svg"]>;
 </script>
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"
