@@ -6,10 +6,10 @@
 
   const userState = get(userStore);
   if (!userState.user && userState.status === "unauthenticated") {
-    navigate("/login");
+    navigate("/sign-in");
   } else if (userState.status === "initial") {
     userStore.fetchUser().catch(() => {
-      navigate("/login");
+      navigate("/sign-in");
     });
   }
 
