@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { HTMLInputAttributes } from "svelte/elements";
-  import { genId } from "../lib";
-  import cn from "clsx";
+  import { genId } from "../../lib";
   import { createEventDispatcher } from "svelte";
+  import cn from "clsx";
 
   interface $$Props extends HTMLInputAttributes {
     checked?: boolean;

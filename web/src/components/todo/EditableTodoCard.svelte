@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { HTMLFormAttributes } from "svelte/elements";
   import type { Todo } from "../../types/todo";
-  import Button from "../Button.svelte";
-  import Checkbox from "../Checkbox.svelte";
+  import Button from "../ui/Button.svelte";
+  import Checkbox from "../ui/Checkbox.svelte";
 
   interface $$Props extends HTMLFormAttributes {
     todo?: Partial<Todo>;

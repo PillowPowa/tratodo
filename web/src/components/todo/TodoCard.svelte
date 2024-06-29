@@ -1,9 +1,9 @@
 <script lang="ts">
-  import Button from "../Button.svelte";
-  import Checkbox from "../Checkbox.svelte";
+  import Button from "../ui/Button.svelte";
+  import Checkbox from "../ui/Checkbox.svelte";
   import EditIcon from "../icons/EditIcon.svelte";
   import TrashIcon from "../icons/TrashIcon.svelte";
-  import { createOverlayContext, Overlay } from "../overlay";
+  import { createOverlayContext, Overlay } from "../ui/overlay";
   import { clickOutside } from "../../lib/hooks";
   import { contentEditableMacroFocus } from "../../lib/document";
   import { memento } from "../../lib/memento";

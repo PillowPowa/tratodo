@@ -1,5 +1,5 @@
 <script lang="ts">
-  import CheckIcon from "../icons/CheckIcon.svelte";
+  import CheckIcon from "../../icons/CheckIcon.svelte";
   import { getSelectContext } from "./store";
   import cn from "clsx";
 

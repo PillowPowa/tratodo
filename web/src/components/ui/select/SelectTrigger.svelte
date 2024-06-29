@@ -2,7 +2,7 @@
   import type { HTMLInputAttributes } from "svelte/elements";
   import cn from "clsx";
   import { getSelectContext } from "./store";
-  import ChevronUpIcon from "../icons/ChevronUpIcon.svelte";
+  import ChevronUpIcon from "../../icons/ChevronUpIcon.svelte";
 
   const select = getSelectContext();
 
