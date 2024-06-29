@@ -10,6 +10,6 @@ func CORS(allowOrigin string) mux.MiddlewareFunc {
 		handlers.AllowCredentials(),
 		handlers.AllowedOrigins([]string{allowOrigin}),
 		handlers.AllowedHeaders([]string{"Content-Type", "Cookie"}),
-		handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PATCH", "PUT", "OPTIONS"}),
+		handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PATCH", "DELETE", "OPTIONS"}),
 	)
 }
