@@ -8,6 +8,7 @@
     SelectTrigger,
   } from "../components/ui/select";
   import EditableTodoCard from "../components/todo/EditableTodoCard.svelte";
+  import TodoSkeleton from "../components/todo/TodoSkeleton.svelte";
   import { todoStore } from "../store/todo";
   import { queryStore } from "../store/query";
 
@@ -61,7 +62,9 @@
     >
       <EditableTodoCard on:submit={onAddTodo} />
       {#if !$todoStore}
-        <p>Loading...</p>
+        {#each Array(5) as _, i (i)}
+          <TodoSkeleton />
+        {/each}
       {:else}
         {#each $todoStore as todo (todo.id)}
           <TodoCard {todo} />
