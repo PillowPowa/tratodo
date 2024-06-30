@@ -1,19 +1,20 @@
 <script lang="ts">
-  import type { LoginUserInput } from "src/types/user";
+  import type { RegisterUserInput } from "src/types/user";
   import Button from "../components/ui/Button.svelte";
   import DetailedInput from "../components/ui/DetailedInput.svelte";
   import { FetchError } from "../lib/ky";
   import { auth } from "../api";
   import { Link, navigate } from "svelte-routing";
 
-  let fields: LoginUserInput = {
-    login: "",
+  let fields: RegisterUserInput = {
+    username: "",
+    email: "",
     password: "",
   };
 
   const onSubmit = (e: SubmitEvent) => {
     auth
-      .login(fields)
+      .register(fields)
       .then(() => {
         navigate("/");
         if (e.target instanceof HTMLFormElement) {
@@ -34,7 +35,7 @@
     <h2
       class="text-6xl my-6 uppercase leading-[110%] font-bold text-center text-secondary"
     >
-      Sign In
+      Sign Up
     </h2>
 
     <form
@@ -42,25 +43,35 @@
       class="py-6 sm:px-6 px-2 space-y-6 bg-secondary rounded-md"
     >
       <div class="text-center w-full">
-        <h2 class="font-semibold text-3xl">Welcome Back!</h2>
+        <h2 class="font-semibold text-3xl">Welcome in Tratodo!</h2>
         <p class="text-foreground/80">
-          Please, enter your details in form below
+          Create an account by filling the form below
         </p>
       </div>
       <div class="space-y-4">
         <DetailedInput
-          bind:value={fields.login}
-          id="login"
-          placeholder="Username or email"
+          bind:value={fields.username}
+          id="username"
+          placeholder="Your username"
           required
         >
-          Login
+          Username
+        </DetailedInput>
+
+        <DetailedInput
+          bind:value={fields.email}
+          id="email"
+          placeholder="Your email address"
+          type="email"
+          required
+        >
+          Email
         </DetailedInput>
 
         <DetailedInput
           bind:value={fields.password}
           id="password"
-          placeholder="Password"
+          placeholder="Your password"
           type="password"
           required
         >
@@ -68,14 +79,14 @@
         </DetailedInput>
       </div>
       <div class="space-y-2">
-        <Button class="w-full" type="submit" size="lg">Sign In</Button>
+        <Button class="w-full" type="submit" size="lg">Sign Up</Button>
         <p class="text-foreground/80">
-          Don't have account yet?
+          Already have an account?
           <Link
             class="underline text-primary/70 hover:text-primary transition-colors"
-            to="/sign-up"
+            to="/sign-in"
           >
-            Sign up!
+            Sign in!
           </Link>
         </p>
       </div>

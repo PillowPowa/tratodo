@@ -20,6 +20,7 @@
   .skeleton {
     @apply bg-background/90 rounded-sm animate-pulse shadow-sm;
   }
+
   .skeleton-secondary {
     @apply bg-secondary/80 rounded-sm animate-pulse shadow-sm;
   }
